@@ -1,6 +1,8 @@
 import dynamic from 'next/dynamic'
 
-import sample from '../code-sample'
+import sample from '../code-sample' ;
+
+import Timer from 'easytimer.js';
 
 /* ------------------- source: this is combination of 3 sources -------------------------------------------------------------
  1/ next.js/examples/with-monaco-editor : we started with this sub repo 
@@ -21,6 +23,9 @@ import sample from '../code-sample'
  */
 
 const MonacoEditor = dynamic(import('react-monaco-editor'), { ssr: false })
+var timeticks = 0 ;
+var idx = 0;
+var a = "this is big text fsf sfsfev er2r2sfffwfr1RVSVSDFSFSFFSDFDF";
 
 class IndexPage extends React.Component {
 
@@ -44,7 +49,9 @@ class IndexPage extends React.Component {
 
   changeEditorValue = () => {
     if (this.editor) {
-      this.editor.setValue("// code changed! \n");
+      this.editor.setValue("// code changed! 222 \n");
+     // this.timer2() ;
+
     }
   };
 
@@ -53,16 +60,73 @@ class IndexPage extends React.Component {
   }
 
   insertCodeAtCursor = () => {
+
+    const timer = new Timer();  
+    timer.start({precision: 'seconds'});
+
+    const ed = this.editor ;
+    const mon2 = this.mon ;
+    timer.addEventListener('secondsUpdated', function (e) {
+      timeticks++ ;
+        if (timeticks % 1 == 0) {
+          const str = timer.getTimeValues().toString([ 'minutes', 'seconds']);
+          console.log(str);
+          //idx++ ;
+
+          var line = ed.getPosition();
+          var range = new mon2.Range(line.lineNumber, 1, line.lineNumber, 1);
+          var id = { major: 1, minor: 1 };             
+          //var text = "ch  2e2e2e2e2e2e ";
+          var text = a[idx] ; 
+          var op = {identifier: id, range: range, text: text, forceMoveMarkers: true};
+          ed.executeEdits("my-source", [op]);
+          idx++ ;
+          
+        }
+    });
+
+    /*
     // source:  https://stackoverflow.com/questions/41642649/how-do-i-insert-text-into-a-monaco-editor
     var line = this.editor.getPosition();
     var range = new this.mon.Range(line.lineNumber, 1, line.lineNumber, 1);
     var id = { major: 1, minor: 1 };             
-    var text = "fun add(a,b) { } ";
+    //var text = "ch  2e2e2e2e2e2e ";
+    var text = a[idx] ; 
     var op = {identifier: id, range: range, text: text, forceMoveMarkers: true};
     this.editor.executeEdits("my-source", [op]);
+    idx++ ;
+    */
   }
 
+  timer2 = () => {
+    /*
+    const timer = new Timer();  
+    timer.start({precision: 'seconds'});
+
+    timer.addEventListener('secondsUpdated', function (e) {
+      timeticks++ ;
+        if (timeticks % 3 == 0) {
+          const str = timer.getTimeValues().toString([ 'minutes', 'seconds']);
+          console.log(str);
+*/
+          //this.insertCodeAtCursor(a[idx]); 222
+          var line = this.editor.getPosition();
+          var range = new this.mon.Range(line.lineNumber, 1, line.lineNumber, 1);
+          var id = { major: 1, minor: 1 };             
+          var text = "ch  2e2e2e2e2e2e ";
+          var op = {identifier: id, range: range, text: text, forceMoveMarkers: true};
+          this.editor.executeEdits("my-source", [op]);
+
+          idx++ ;
+          /*
+        }
+    });
+*/
+ }
+
   // -----------------------------------------------------
+  //  <button onClick={this.insertCodeAtCursor} type="button">insert Code AtCursor</button>
+
   render() {
 
     const code = this.state.code;
@@ -76,6 +140,7 @@ class IndexPage extends React.Component {
       <button onClick={this.changeEditorValue} type="button">Change editor value</button>
 
       <button onClick={this.insertCodeAtCursor} type="button">insert Code AtCursor</button>
+
      
       <MonacoEditor
         width="800"
