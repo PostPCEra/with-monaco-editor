@@ -1,8 +1,11 @@
 import dynamic from 'next/dynamic'
 
-import sample from '../code-sample' ;
 
 import Timer from 'easytimer.js';
+
+import sample from '../code-sample' ;
+//const sample = "this is big text fsf sfsfev er2r2sfffwfr1RVSVSDFSFSFFSDFDF";
+
 
 /* ------------------- source: this is combination of 3 sources -------------------------------------------------------------
  1/ next.js/examples/with-monaco-editor : we started with this sub repo 
@@ -23,23 +26,32 @@ import Timer from 'easytimer.js';
  */
 
 const MonacoEditor = dynamic(import('react-monaco-editor'), { ssr: false })
+
+
 var timeticks = 0 ;
-var idx = 0;
-var a = "this is big text fsf sfsfev er2r2sfffwfr1RVSVSDFSFSFFSDFDF";
+var codeLocationIndex = 0;
 
 class IndexPage extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      code: '// type your code...',
+      code: sample,
       editor: null,
       monaco: null
     },
     this.editor = null;
     this.mon = null ;
+
+    this.timer = new Timer(); 
+    this.pauseTimer = true ;
+    this.codeLength = sample.length ;
+
   }
 
+  // --------------------------------------------------------
+  // editorDidMount(editor, monaco) an event emitted when the editor has been mounted (similar to componentDidMount of React).
+  // This is call back function from inside rener() of the <MonacoEditor />
   editorDidMount = (editor, monaco) => {
     // eslint-disable-next-line no-console
     console.log("editorDidMount 222", editor, editor.getValue(), editor.getModel());
@@ -47,10 +59,11 @@ class IndexPage extends React.Component {
     this.mon = monaco ;
   };
 
+  // --------------------------------------------------------
   changeEditorValue = () => {
     if (this.editor) {
       this.editor.setValue("// code changed! 333 \n");
-     //  this.keydownup() ;
+     //  this.keyDownUp() ;
     }
 
     // SR : almost like what we have ...
@@ -62,43 +75,102 @@ class IndexPage extends React.Component {
   
   };
 
+
+  // --------------------------------------------------------
   onChange(newValue, e) {
     // console.log('onChange', newValue);
   }
 
+  // --------------------------------------------------------
   insertCodeAtCursor = () => {
 
-    const timer = new Timer();  
-    timer.start({precision: 'secondTenths'});
+    var timerObj = this.timer;
+    timerObj.start({precision: 'secondTenths'});
+
+    const codeLength2 = this.codeLength ;
 
     const ed = this.editor ;
     const mon2 = this.mon ;
-    timer.addEventListener('secondTenthsUpdated', function (e) {
+    timerObj.addEventListener('secondTenthsUpdated', function (e) {
       timeticks++ ;
         if (timeticks % 2 == 0) {
-          const str = timer.getTimeValues().toString([ 'minutes', 'seconds']);
+          const str = timerObj.getTimeValues().toString([ 'minutes', 'seconds']);
           console.log(str);
-          //idx++ ;
 
           var line = ed.getPosition();
-          var range = new mon2.Range(line.lineNumber, idx, line.lineNumber, idx+1);
+          var range = new mon2.Range(line.lineNumber, codeLocationIndex, line.lineNumber, codeLocationIndex+1);
           var id = { major: 1, minor: 1 };             
           //var text = "ch  2e2e2e2e2e2e ";
-          var text = a[idx] ; 
+          var text = sample[codeLocationIndex] ;  //a[idx]
           var op = {identifier: id, range: range, text: text, forceMoveMarkers: true};
           ed.executeEdits("my-source", [op]);
-          idx++ ;
+          codeLocationIndex++ ;
           
+          if ( codeLocationIndex == codeLength2)
+              timerObj.stop();
         }
     });
 
   }
 
+  
+  // --------------------------------------------------------
+  pauseResume = () => {
+
+    if (this.pauseTimer) {
+      this.timer.pause();
+    }
+    else {
+      this.timer.start(); // for existing timers, this 'start' means 'Resume' 
+    }
+
+    this.pauseTimer = !this.pauseTimer ; // toggle it here for next time
+    console.log(codeLocationIndex, this.codeLength);
+  }
+
+  // -----------------------------------------------------
+  render() {
+
+    const code = this.state.code;
+    const options = {
+      selectOnLineNumbers: true
+    };
+
+    return (
+      <>
+	   <h3> Monaco with Next js 2222 </h3>
+     <input type="text" id="id2"/>
+      <button onClick={this.changeEditorValue} type="button">Change editor value</button>
+
+      <button onClick={this.insertCodeAtCursor} type="button">insert Code AtCursor</button>
+
+      <button onClick={this.pauseResume} type="button">Pause/Resume</button>
+
+     
+      <MonacoEditor
+        width="800"
+        height="600"
+        language="javascript"
+        theme="vs-dark"
+        value={code}
+        options={options}
+        onChange={this.onChange}
+        editorDidMount={this.editorDidMount}
+      />
+
+      </>
+    );
+
+  }  // end render()
+
+
+  // ----------------------------------------------------------- not working , just kept if we need in future ....
+  ///
   // Note: try the Monaco text Inserts only only 
   // https://stackoverflow.com/questions/596481/is-it-possible-to-simulate-key-press-events-programmatically?rq=1
-   keydownup = () => {
+  keyDownUp = () => {
     
-    console.log('inside keydownup() ....') ;
+    console.log('inside keyDownUp() ....') ;
 
     document.getElementById("id2").dispatchEvent(
       new KeyboardEvent("keydown", {
@@ -124,42 +196,8 @@ class IndexPage extends React.Component {
       })
     );
 
-  }
+  }  // end keyDownUp()
  
-  // -----------------------------------------------------
-  //  <button onClick={this.insertCodeAtCursor} type="button">insert Code AtCursor</button>
-
-  render() {
-
-    const code = this.state.code;
-    const options = {
-      selectOnLineNumbers: true
-    };
-
-    return (
-      <>
-	   <h3> Monaco with Next js </h3>
-     <input type="text" id="id2"/>
-      <button onClick={this.changeEditorValue} type="button">Change editor value</button>
-
-      <button onClick={this.insertCodeAtCursor} type="button">insert Code AtCursor</button>
-
-     
-      <MonacoEditor
-        width="800"
-        height="600"
-        language="javascript"
-        theme="vs-dark"
-        value={code}
-        options={options}
-        onChange={this.onChange}
-        editorDidMount={this.editorDidMount}
-      />
-
-      </>
-    );
-
-  }  // end render()
 
 }  // end Class component
 
