@@ -50,9 +50,16 @@ class IndexPage extends React.Component {
   changeEditorValue = () => {
     if (this.editor) {
       this.editor.setValue("// code changed! 333 \n");
-      this.keydownup() ;
-
+     //  this.keydownup() ;
     }
+
+    // SR : almost like what we have ...
+    // https://github.com/Microsoft/monaco-editor/issues/698
+    this.editor.getModel().applyEdits([{
+      range: this.mon.Range.fromPositions(this.editor.getPosition()),
+      text: 'Hello World'
+  }]);
+  
   };
 
   onChange(newValue, e) {
