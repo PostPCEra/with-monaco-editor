@@ -62,19 +62,19 @@ class IndexPage extends React.Component {
   insertCodeAtCursor = () => {
 
     const timer = new Timer();  
-    timer.start({precision: 'seconds'});
+    timer.start({precision: 'secondTenths'});
 
     const ed = this.editor ;
     const mon2 = this.mon ;
-    timer.addEventListener('secondsUpdated', function (e) {
+    timer.addEventListener('secondTenthsUpdated', function (e) {
       timeticks++ ;
-        if (timeticks % 1 == 0) {
+        if (timeticks % 2 == 0) {
           const str = timer.getTimeValues().toString([ 'minutes', 'seconds']);
           console.log(str);
           //idx++ ;
 
           var line = ed.getPosition();
-          var range = new mon2.Range(line.lineNumber, 1, line.lineNumber, 1);
+          var range = new mon2.Range(line.lineNumber, idx, line.lineNumber, idx+1);
           var id = { major: 1, minor: 1 };             
           //var text = "ch  2e2e2e2e2e2e ";
           var text = a[idx] ; 
