@@ -49,8 +49,8 @@ class IndexPage extends React.Component {
 
   changeEditorValue = () => {
     if (this.editor) {
-      this.editor.setValue("// code changed! 222 \n");
-     // this.timer2() ;
+      this.editor.setValue("// code changed! 333 \n");
+      this.keydownup() ;
 
     }
   };
@@ -85,45 +85,40 @@ class IndexPage extends React.Component {
         }
     });
 
-    /*
-    // source:  https://stackoverflow.com/questions/41642649/how-do-i-insert-text-into-a-monaco-editor
-    var line = this.editor.getPosition();
-    var range = new this.mon.Range(line.lineNumber, 1, line.lineNumber, 1);
-    var id = { major: 1, minor: 1 };             
-    //var text = "ch  2e2e2e2e2e2e ";
-    var text = a[idx] ; 
-    var op = {identifier: id, range: range, text: text, forceMoveMarkers: true};
-    this.editor.executeEdits("my-source", [op]);
-    idx++ ;
-    */
   }
 
-  timer2 = () => {
-    /*
-    const timer = new Timer();  
-    timer.start({precision: 'seconds'});
+  // Note: try the Monaco text Inserts only only 
+  // https://stackoverflow.com/questions/596481/is-it-possible-to-simulate-key-press-events-programmatically?rq=1
+   keydownup = () => {
+    
+    console.log('inside keydownup() ....') ;
 
-    timer.addEventListener('secondsUpdated', function (e) {
-      timeticks++ ;
-        if (timeticks % 3 == 0) {
-          const str = timer.getTimeValues().toString([ 'minutes', 'seconds']);
-          console.log(str);
-*/
-          //this.insertCodeAtCursor(a[idx]); 222
-          var line = this.editor.getPosition();
-          var range = new this.mon.Range(line.lineNumber, 1, line.lineNumber, 1);
-          var id = { major: 1, minor: 1 };             
-          var text = "ch  2e2e2e2e2e2e ";
-          var op = {identifier: id, range: range, text: text, forceMoveMarkers: true};
-          this.editor.executeEdits("my-source", [op]);
+    document.getElementById("id2").dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "e",
+        keyCode: 69, // example values.
+        code: "KeyE", // put everything you need in this object.
+        which: 69,
+        shiftKey: false, // you don't need to include values
+        ctrlKey: false,  // if you aren't going to use them.
+        metaKey: false   // these are here for example's sake.
+      })
+    );
 
-          idx++ ;
-          /*
-        }
-    });
-*/
- }
+    document.getElementById("id2").dispatchEvent(
+      new KeyboardEvent("keyup", {
+        key: "e",
+        keyCode: 69, // example values.
+        code: "KeyE", // put everything you need in this object.
+        which: 69,
+        shiftKey: false, // you don't need to include values
+        ctrlKey: false,  // if you aren't going to use them.
+        metaKey: false   // these are here for example's sake.
+      })
+    );
 
+  }
+ 
   // -----------------------------------------------------
   //  <button onClick={this.insertCodeAtCursor} type="button">insert Code AtCursor</button>
 
@@ -137,6 +132,7 @@ class IndexPage extends React.Component {
     return (
       <>
 	   <h3> Monaco with Next js </h3>
+     <input type="text" id="id2"/>
       <button onClick={this.changeEditorValue} type="button">Change editor value</button>
 
       <button onClick={this.insertCodeAtCursor} type="button">insert Code AtCursor</button>
